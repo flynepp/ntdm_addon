@@ -107,14 +107,14 @@ function isTabElement(element) {
 
 /**
  * 获取需要监听的容器元素
- * @returns {Element} 容器元素
+ * @returns {Element|null} 容器元素，未找到则返回 null
  */
 function getTabContainer() {
   // 返回标签按钮容器，优化监听范围
   const container = document.getElementById('new_anime_btns');
   
-  // 如果找不到容器，返回 body 作为后备
-  return container || document.body;
+  // 如果找不到容器，返回 null（不使用 body 作为后备，避免性能问题）
+  return container || null;
 }
 
 /**

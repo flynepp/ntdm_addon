@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "视频网站标签状态记录",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "记录视频网站的标签状态，页面刷新后自动恢复",
   
   "permissions": [

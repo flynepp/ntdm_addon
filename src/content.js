@@ -9,6 +9,7 @@
   
   const currentUrl = window.location.href;
   const SAVE_DEBOUNCE_DELAY = 500;
+  let mutationObserver = null; // 全局观察器引用
   
   // 创建防抖保存函数
   const saveStateDebounced = debounce(async (state) => {
@@ -32,10 +33,18 @@
   async function onPageReady() {
     log('页面已加载，开始初始化');
     
+    let domReplaced = false;
+    
+    // 检查是否为主页
+    if (isHomePage()) {
+      // 更新追番列表数据
+      domReplaced = await replaceHomePageContent();
+    }
+    
     // 恢复状态
     await restoreTabState();
     
-    // 开始监听
+    // 开始监听（如果替换了 DOM，需要重新绑定监听器）
     startMonitoring();
   }
   
@@ -85,9 +94,19 @@
    * 设置 MutationObserver
    */
   function setupMutationObserver() {
-    const targetNode = getTabContainer();
+    // 清理旧的观察器
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+      mutationObserver = null;
+    }
     
-    const observer = new MutationObserver((mutations) => {
+    const targetNode = getTabContainer();
+    if (!targetNode) {
+      log('未找到标签容器，跳过 MutationObserver 设置');
+      return;
+    }
+    
+    mutationObserver = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
         if (isTabStateChange(mutation)) {
           const currentState = extractTabState();
@@ -104,7 +123,8 @@
       attributeFilter: ['class', 'aria-selected', 'data-active']
     };
     
-    observer.observe(targetNode, config);
+    mutationObserver.observe(targetNode, config);
+    log('MutationObserver 已设置');
   }
   
   /**
